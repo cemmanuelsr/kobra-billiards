@@ -141,9 +141,9 @@ public class Stick : MonoBehaviour
 
     void setPlayerText() {
         if (playerId == 1)
-            playerText.text = "Player " + playerId.ToString() + ": " + player1Points.ToString() + " points";
+            playerText.text = "Player (" + playerId.ToString() + ") " + player1Points.ToString() + " points";
         else
-            playerText.text = "Player " + playerId.ToString() + ": " + player2Points.ToString() + " points";
+            playerText.text = "Player (" + playerId.ToString() + ") " + player2Points.ToString() + " points";
     }
 
     public void increasePlayer1Points() {
