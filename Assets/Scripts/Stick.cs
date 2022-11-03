@@ -63,6 +63,10 @@ public class Stick : MonoBehaviour
                 followScript.setNewOffset(new Vector3(0.0f, zoom, 0.25f));
 
                 isGamePlaying = false;
+
+                if (hasToChangeRound()) {
+                    changeRound();
+                }
             }
         }
     }
@@ -137,9 +141,17 @@ public class Stick : MonoBehaviour
 
     void setPlayerText() {
         if (playerId == 1)
-            playerText.text = "Player " + playerId.ToString() + ": " + player1Points + " points";
+            playerText.text = "Player " + playerId.ToString() + ": " + player1Points.ToString() + " points";
         else
-            playerText.text = "Player " + playerId.ToString() + ": " + player2Points + " points";
+            playerText.text = "Player " + playerId.ToString() + ": " + player2Points.ToString() + " points";
+    }
+
+    public void increasePlayer1Points() {
+        player1Points++;
+    }
+
+    public void increasePlayer2Points() {
+        player2Points++;
     }
 
     void attachTargetBall() {
@@ -154,5 +166,14 @@ public class Stick : MonoBehaviour
                 return false;
         }
         return true;
+    }
+
+    bool hasToChangeRound() {
+        for (int i = 0; i < balls.transform.childCount; i++) {
+            bool hasToChangeBall = balls.transform.GetChild(i).GetComponent<Ball>().toChangeRound;
+            if (hasToChangeBall)
+                return true;
+        }
+        return false;
     }
 }
