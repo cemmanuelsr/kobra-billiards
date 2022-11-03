@@ -9,6 +9,7 @@ public class Stick : MonoBehaviour
     public GameObject balls;
     public int playerId;
     public TextMeshProUGUI playerText;
+    public TextMeshProUGUI victoryText;
     public int player1Points;
     public int player2Points;
     public bool notChangeRound;
@@ -36,6 +37,8 @@ public class Stick : MonoBehaviour
         player1Points = 0;
         player2Points = 0;
         notChangeRound = false;
+
+        victoryText.text = "";
 
         Physics.IgnoreLayerCollision(6, 7, true);
         Physics.IgnoreLayerCollision(6, 8, true);
@@ -156,6 +159,10 @@ public class Stick : MonoBehaviour
 
     public void increasePlayer2Points() {
         player2Points++;
+    }
+
+    public void winGame(int player) {
+        victoryText.text = "Player (" + player.ToString() + ") " + " You Won!";
     }
 
     void attachTargetBall() {

@@ -69,11 +69,11 @@ public class Ball : MonoBehaviour
                 int player2Points = holder.GetComponent<Stick>().player2Points;
                 if (playerId == 1 && player1Points == 7)
                 {
-                    Debug.Log("Player1 ganhou");
+                    holder.GetComponent<Stick>().winGame(1);
                 }
                 else if (playerId == 2 && player2Points == 7)
                 {
-                    Debug.Log("Player2 ganhou");
+                    holder.GetComponent<Stick>().winGame(2);
                 }
                 else {
                     Debug.Log("Perdeu");
