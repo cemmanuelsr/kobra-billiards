@@ -1,16 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Stick : MonoBehaviour
 {
     public GameObject targetBall;
     public GameObject balls;
+    public int playerId;
+    public TextMeshProUGUI playerText;
+    public int player1Points;
+    public int player2Points;
 
     private SphereCollider ballCollider;
     private CapsuleCollider capsuleCollider;
     private GameObject targetHolder;
-    private int roundNumber;
     private float signal;
     private float playForce;
     private float angle;
@@ -21,14 +25,18 @@ public class Stick : MonoBehaviour
         capsuleCollider = gameObject.GetComponent<CapsuleCollider>();
         ballCollider = targetBall.GetComponent<SphereCollider>();
 
-        roundNumber = 0;
+        playerId = 1;
+        setPlayerText();
         signal = 1.0f;
         playForce = 0.0f;
         angle = 0.0f;
         zoom = 0.5f;
         isGamePlaying = false;
+        player1Points = 0;
+        player2Points = 0;
 
-        Physics.IgnoreLayerCollision(6, 0, true);
+        Physics.IgnoreLayerCollision(6, 7, true);
+        Physics.IgnoreLayerCollision(6, 8, true);
     }
 
     void Update() {
@@ -37,72 +45,12 @@ public class Stick : MonoBehaviour
             CameraFollow followScript = Camera.main.GetComponent<CameraFollow>();
 
             // Player's round
-            if (roundNumber % 2 == 0) {
-                gameObject.GetComponent<Renderer>().enabled = true;
-
-                if (Input.GetKey(KeyCode.UpArrow))
-                    zoom += 0.1f * Time.deltaTime;
-                if (Input.GetKey(KeyCode.DownArrow))
-                    zoom -= 0.1f * Time.deltaTime;
-                zoom = Mathf.Clamp(zoom, 0.5f, 1.5f);
-
-                followScript.setNewOffset(new Vector3(0.0f, zoom, 0.25f));
-
-                if (Input.GetKey(KeyCode.LeftArrow))
-                    angle += 0.5f * Time.deltaTime;
-                if (Input.GetKey(KeyCode.RightArrow))
-                    angle -= 0.5f * Time.deltaTime;
-
-                // Lock stick at target ball
-                float radius = 1.15f * ballCollider.radius + playForce / 100.0f;
-                Vector3 newPosition = new Vector3(radius * Mathf.Sin(angle), 0.0f, radius * Mathf.Cos(angle)) + ballPosition;
-                transform.position = newPosition;
-
-                transform.LookAt(ballPosition);
-
-                if (Input.GetKey(KeyCode.Space))
-                {
-                    playForce += signal * 5.0f * Time.deltaTime;
-                    playForce = Mathf.Clamp(playForce, 0.0f, 15.0f);
-
-                    if (playForce >= 14.9f)
-                    {
-                        signal = -1.0f;
-                    }
-                    else if (playForce <= 0.1f)
-                    {
-                        signal = 1.0f;
-                    }
-                }
-
-                // Make play
-                if (Input.GetKeyUp(KeyCode.Space))
-                {
-                    Rigidbody ballBody = targetBall.GetComponent<Rigidbody>();
-                    Vector3 forceDir = ballPosition - transform.position;
-                    ballBody.velocity = forceDir * playForce;
-                    dettachTargetBall();
-
-                    followScript.setNewTarget(GameObject.Find("Table Play Anchor"));
-                    followScript.setNewOffset(new Vector3(0.0f, 1.0f, 0.0f));
-
-                    isGamePlaying = true;
-                    playForce = 1.0f;
-                }
+            if (playerId == 1) {
+                executeAction(ballPosition, followScript);
             }
             // AI's round
             else {
-                Rigidbody ballBody = targetBall.GetComponent<Rigidbody>();
-                Vector3 forceDir = ballPosition - transform.position;
-                forceDir = Quaternion.Euler(0.0f, Random.Range(-45.0f, 45.0f), 0.0f) * forceDir;
-                ballBody.velocity = forceDir * Random.Range(7.5f, 15.0f);
-                dettachTargetBall();
-
-                followScript.setNewTarget(GameObject.Find("Table Play Anchor"));
-                followScript.setNewOffset(new Vector3(0.0f, 1.0f, 0.0f));
-
-                isGamePlaying = true;
-                playForce = 1.0f;
+                executeAction(ballPosition, followScript);
             }
         }
         else {
@@ -115,14 +63,83 @@ public class Stick : MonoBehaviour
                 followScript.setNewOffset(new Vector3(0.0f, zoom, 0.25f));
 
                 isGamePlaying = false;
-                roundNumber++;
             }
+        }
+    }
+
+    void executeAction(Vector3 ballPosition, CameraFollow followScript) {
+        gameObject.GetComponent<Renderer>().enabled = true;
+
+        if (Input.GetKey(KeyCode.UpArrow))
+            zoom += 0.1f * Time.deltaTime;
+        if (Input.GetKey(KeyCode.DownArrow))
+            zoom -= 0.1f * Time.deltaTime;
+        zoom = Mathf.Clamp(zoom, 0.5f, 1.5f);
+
+        followScript.setNewOffset(new Vector3(0.0f, zoom, 0.25f));
+
+        if (Input.GetKey(KeyCode.LeftArrow))
+            angle += 0.5f * Time.deltaTime;
+        if (Input.GetKey(KeyCode.RightArrow))
+            angle -= 0.5f * Time.deltaTime;
+
+        // Lock stick at target ball
+        float radius = 1.15f * ballCollider.radius + playForce / 100.0f;
+        Vector3 newPosition = new Vector3(radius * Mathf.Sin(angle), 0.0f, radius * Mathf.Cos(angle)) + ballPosition;
+        transform.position = newPosition;
+
+        transform.LookAt(ballPosition);
+
+        if (Input.GetKey(KeyCode.Space))
+        {
+            playForce += signal * 5.0f * Time.deltaTime;
+            playForce = Mathf.Clamp(playForce, 0.0f, 15.0f);
+
+            if (playForce >= 14.9f)
+            {
+                signal = -1.0f;
+            }
+            else if (playForce <= 0.1f)
+            {
+                signal = 1.0f;
+            }
+        }
+
+        // Make play
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            Rigidbody ballBody = targetBall.GetComponent<Rigidbody>();
+            Vector3 forceDir = ballPosition - transform.position;
+            ballBody.velocity = forceDir * playForce;
+            dettachTargetBall();
+
+            followScript.setNewTarget(GameObject.Find("Table Play Anchor"));
+            followScript.setNewOffset(new Vector3(0.0f, 1.0f, 0.0f));
+
+            isGamePlaying = true;
+            playForce = 0.0f;
         }
     }
 
     void dettachTargetBall() {
         targetHolder = targetBall;
         targetBall = null;
+    }
+
+    public void changeRound() {
+        if (playerId == 1)
+            playerId = 2;
+        else
+            playerId = 1;
+
+        setPlayerText();
+    }
+
+    void setPlayerText() {
+        if (playerId == 1)
+            playerText.text = "Player " + playerId.ToString() + ": " + player1Points + " points";
+        else
+            playerText.text = "Player " + playerId.ToString() + ": " + player2Points + " points";
     }
 
     void attachTargetBall() {
@@ -133,7 +150,7 @@ public class Stick : MonoBehaviour
     bool isGameStatic() {
         for (int i = 0; i < balls.transform.childCount; i++) {
             Rigidbody ballBody = balls.transform.GetChild(i).GetComponent<Rigidbody>();
-            if (!Utils.isCloseToZero(ballBody.velocity))
+            if (ballBody.velocity.magnitude > 0.01f)
                 return false;
         }
         return true;
