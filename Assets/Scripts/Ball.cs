@@ -5,7 +5,6 @@ using UnityEngine;
 public class Ball : MonoBehaviour
 {
     public GameObject holder;
-    public bool toChangeRound;
 
     private Vector3 startPosition;
     private bool replacing;
@@ -14,7 +13,6 @@ public class Ball : MonoBehaviour
     void Start()
     {
         replacing = false;
-        toChangeRound = true;
         startPosition = transform.position;
         rigidBody = gameObject.GetComponent<Rigidbody>();
     }
@@ -50,7 +48,6 @@ public class Ball : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        toChangeRound = true;
         if (other.gameObject.CompareTag("Hole"))
         {
             if (gameObject.CompareTag("Branca"))
@@ -63,7 +60,7 @@ public class Ball : MonoBehaviour
                 rigidBody.velocity = new Vector3(0.0f, 0.0f, 0.0f);
                 Physics.IgnoreLayerCollision(7, 8, true);
                 replacing = true;
-                toChangeRound = true;
+                holder.GetComponent<Stick>().notChangeRound = false;
             }
             else if (gameObject.CompareTag("Oito"))
             {
@@ -81,32 +78,36 @@ public class Ball : MonoBehaviour
                 else {
                     Debug.Log("Perdeu");
                     holder.GetComponent<Stick>().changeRound();
+                    holder.GetComponent<Stick>().notChangeRound = true;
                     holder.SetActive(false);
-                    toChangeRound = true;
                 }
             }
             else
             {
                 int playerId = holder.GetComponent<Stick>().playerId;
-                if (other.CompareTag("Lisa") && playerId == 1)
+                if (gameObject.CompareTag("Lisa") && playerId == 1)
                 {
+                    Debug.Log("Increase 1");
                     holder.GetComponent<Stick>().increasePlayer1Points();
-                    toChangeRound = false;
+                    holder.GetComponent<Stick>().notChangeRound = true;
                 }
-                if (other.CompareTag("Listrada") && playerId == 2)
+                if (gameObject.CompareTag("Listrada") && playerId == 2)
                 {
+                    Debug.Log("Increase 2");
                     holder.GetComponent<Stick>().increasePlayer2Points();
-                    toChangeRound = false;
+                    holder.GetComponent<Stick>().notChangeRound = true;
                 }
-                if (other.CompareTag("Listrada") && playerId == 1)
+                if (gameObject.CompareTag("Listrada") && playerId == 1)
                 {
+                    Debug.Log("Increase 2");
                     holder.GetComponent<Stick>().increasePlayer2Points();
-                    toChangeRound = true;
+                    holder.GetComponent<Stick>().notChangeRound = false;
                 }
-                if (other.CompareTag("Lisa") && playerId == 2)
+                if (gameObject.CompareTag("Lisa") && playerId == 2)
                 {
+                    Debug.Log("Increase 1");
                     holder.GetComponent<Stick>().increasePlayer1Points();
-                    toChangeRound = true;
+                    holder.GetComponent<Stick>().notChangeRound = false;
                 }
                 Destroy(gameObject);
             }

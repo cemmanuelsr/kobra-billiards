@@ -11,6 +11,7 @@ public class Stick : MonoBehaviour
     public TextMeshProUGUI playerText;
     public int player1Points;
     public int player2Points;
+    public bool notChangeRound;
 
     private SphereCollider ballCollider;
     private CapsuleCollider capsuleCollider;
@@ -34,6 +35,7 @@ public class Stick : MonoBehaviour
         isGamePlaying = false;
         player1Points = 0;
         player2Points = 0;
+        notChangeRound = false;
 
         Physics.IgnoreLayerCollision(6, 7, true);
         Physics.IgnoreLayerCollision(6, 8, true);
@@ -64,8 +66,10 @@ public class Stick : MonoBehaviour
 
                 isGamePlaying = false;
 
-                if (hasToChangeRound()) {
+                if (!notChangeRound) {
                     changeRound();
+                } else {
+                    notChangeRound = false;
                 }
             }
         }
@@ -166,14 +170,5 @@ public class Stick : MonoBehaviour
                 return false;
         }
         return true;
-    }
-
-    bool hasToChangeRound() {
-        for (int i = 0; i < balls.transform.childCount; i++) {
-            bool hasToChangeBall = balls.transform.GetChild(i).GetComponent<Ball>().toChangeRound;
-            if (hasToChangeBall)
-                return true;
-        }
-        return false;
     }
 }
